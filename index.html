@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Romaha Dev Agency — Web Development, Design &amp; SEO in Tbilisi</title>
+
+<link rel="preconnect" href="https://fonts.cdnfonts.com">
+<link href="https://fonts.cdnfonts.com/css/neue-montreal" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-deep: #101112;
+    --ink: #f3f1ec;
+    --ink-dim: rgba(243,241,236,0.62);
+    --ink-faint: rgba(243,241,236,0.36);
+    --accent: #7fa6c2;
+    --line: rgba(243,241,236,0.16);
+    --type: 'Neue Montreal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html, body{ height:100%; }
+
+  body{
+    background: var(--bg-deep);
+    color: var(--ink);
+    font-family: var(--type);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  img, video{ display:block; max-width:100%; }
+
+  :focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .wrap{
+    max-width: 1360px;
+    margin: 0 auto;
+    padding-left: clamp(20px, 5vw, 64px);
+    padding-right: clamp(20px, 5vw, 64px);
+  }
+
+  /* ============================================================
+     NAVBAR — translucent pill, no logo
+     ============================================================ */
+  .navbar{
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 700;
+    padding-top: clamp(16px, 3vw, 26px);
+  }
+
+  .navbar__row{
+    display:flex;
+    justify-content:flex-end;
+    padding: 0 clamp(20px, 5vw, 64px);
+  }
+
+  .navbar-actions{
+    background-color: rgba(255,255,255,0.14);
+    -webkit-backdrop-filter: blur(1em);
+    backdrop-filter: blur(1em);
+    border-radius: .4em;
+    padding: .75em 1.15em;
+    display:flex;
+    align-items:center;
+    cursor:pointer;
+    transition: background-color .3s ease;
+    border: none;
+    color: var(--ink);
+    font-family: var(--type);
+  }
+  .navbar-actions:hover{ background-color: rgba(255,255,255,0.22); }
+
+  .navbar-actions-label{
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  /* ============================================================
+     FULLSCREEN MENU
+     ============================================================ */
+  .menu{
+    position: fixed;
+    inset: 0;
+    z-index: 650;
+    display: none;
+    opacity: 0;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(20px, 5vw, 40px);
+    padding-top: clamp(90px, 12vw, 130px);
+    transition: opacity .4s ease;
+  }
+  .menu.is-open{ display:flex; }
+  .menu.is-visible{ opacity: 1; }
+
+  .menu-overlay{
+    position: absolute;
+    inset: 0;
+    background: rgba(9,9,10,0.88);
+    -webkit-backdrop-filter: blur(1.4em);
+    backdrop-filter: blur(1.4em);
+    z-index: 0;
+  }
+
+  .menu-content{
+    position: relative;
+    z-index: 1;
+    display:flex;
+    flex-direction:column;
+    gap: .1em;
+  }
+
+  .menu-link{
+    font-weight: 500;
+    font-size: clamp(34px, 7.5vw, 66px);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--ink);
+    transition: color .25s ease;
+  }
+  .menu-link:hover{ color: var(--accent); }
+
+  .menu-row{
+    position: relative;
+    z-index: 1;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+    padding-top: 40px;
+  }
+
+  .menu-col{ }
+  .menu-col--right{ text-align:right; }
+
+  .menu-col__label{
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  .menu-col__value{
+    font-size: 15px;
+    color: var(--ink-dim);
+  }
+  .menu-col__value a:hover{ color: var(--accent); }
+
+  /* ============================================================
+     HERO / VIDEO SLIDESHOW
+     ============================================================ */
+  .hero{
+    position: relative;
+    height: 100svh;
+    width: 100%;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  .slide-video{
+    position:absolute;
+    top:50%; left:50%;
+    min-width:100%;
+    min-height:100%;
+    width:auto; height:auto;
+    transform: translate(-50%,-50%);
+    object-fit:cover;
+    opacity: 0;
+    z-index: 0;
+    transition: opacity 0.9s ease;
+  }
+  .slide-video.is-active{ opacity: 1; z-index: 1; }
+
+  .hero__scrim{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(10,10,11,0.18) 0%, rgba(10,10,11,0.08) 40%, rgba(10,10,11,0.6) 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .hero__content{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    z-index: 3;
+    width:100%;
+    padding-bottom: clamp(48px, 7vw, 88px);
+    padding-top: 170px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .hero__content.is-visible{ opacity:1; transform: translateY(0); }
+
+  .hero__title{
+    font-weight: 500;
+    font-size: clamp(28px, 4.6vw, 46px);
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    max-width: 20ch;
+  }
+
+  @media (min-width: 1024px){
+    .hero__title{ font-size: clamp(19px, 2.3vw, 29px); max-width: 34ch; }
+  }
+
+  .hero__divider{
+    margin-top: clamp(28px, 5vw, 44px);
+    margin-bottom: clamp(24px, 4vw, 36px);
+    border-top: 1px solid var(--line);
+    width: 100%;
+  }
+
+  .hero__footer-row{
+    display:flex;
+    justify-content:flex-end;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .hero__footer-col--right{ width: 50%; max-width:46ch; text-align:left; }
+
+  .hero__footer-label{
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .hero__footer-text{
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  /* ---- swipe hint ---- */
+  .swipe-hint{
+    position:absolute;
+    left:50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 3;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    opacity: .8;
+    animation: hintFloat 2.4s ease-in-out infinite;
+    transition: opacity .5s ease;
+    pointer-events: none;
+  }
+  .swipe-hint.is-hidden{ opacity:0; }
+
+  @keyframes hintFloat{
+    0%,100%{ transform: translate(-50%,0); }
+    50%{ transform: translate(-50%,-6px); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .swipe-hint{ animation:none; }
+    .slide-video, .hero__content, .menu{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR (no logo) -->
+<div class="navbar">
+  <div class="navbar__row">
+    <button class="navbar-actions" id="navToggle" aria-expanded="false" aria-controls="navMenu">
+      <span class="navbar-actions-label" id="navToggleLabel">Menu</span>
+    </button>
+  </div>
+</div>
+
+<!-- FULLSCREEN MENU -->
+<div class="menu" id="navMenu" aria-hidden="true">
+  <div class="menu-overlay"></div>
+
+  <div class="menu-content">
+    <a href="#top" class="menu-link">Home</a>
+    <a href="mailto:hello@romahadev.agency" class="menu-link">Services</a>
+    <a href="mailto:hello@romahadev.agency" class="menu-link">Contact</a>
+  </div>
+
+  <div class="menu-row">
+    <div class="menu-col">
+      <div class="menu-col__label">Based in</div>
+      <div class="menu-col__value">Tbilisi, Georgia</div>
+    </div>
+    <div class="menu-col menu-col--right">
+      <div class="menu-col__label">Email</div>
+      <div class="menu-col__value"><a href="mailto:hello@romahadev.agency">hello@romahadev.agency</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <video class="slide-video" id="videoA" muted playsinline preload="auto"></video>
+  <video class="slide-video" id="videoB" muted playsinline preload="auto"></video>
+
+  <div class="hero__scrim"></div>
+
+  <div class="swipe-hint" id="swipeHint">↑ Swipe</div>
+
+  <div class="hero__content wrap" id="heroContent">
+    <h1 class="hero__title">Crafting high-performance websites that drive growth in Tbilisi and beyond</h1>
+    <div class="hero__divider"></div>
+
+    <div class="hero__footer-row">
+      <div class="hero__footer-col hero__footer-col--right">
+        <p class="hero__footer-label">Services</p>
+        <p class="hero__footer-text">Web Development</p>
+        <p class="hero__footer-text">UI/UX &amp; Design</p>
+        <p class="hero__footer-text">SEO</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // ============================================================
+  // Fullscreen menu toggle
+  // ============================================================
+  (function(){
+    var toggle = document.getElementById('navToggle');
+    var toggleLabel = document.getElementById('navToggleLabel');
+    var menu = document.getElementById('navMenu');
+    var isOpen = false;
+
+    function openMenu(){
+      isOpen = true;
+      menu.classList.add('is-open');
+      requestAnimationFrame(function(){ menu.classList.add('is-visible'); });
+      menu.setAttribute('aria-hidden', 'false');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggleLabel.textContent = 'Close';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu(){
+      isOpen = false;
+      menu.classList.remove('is-visible');
+      menu.setAttribute('aria-hidden', 'true');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggleLabel.textContent = 'Menu';
+      document.body.style.overflow = '';
+      setTimeout(function(){
+        if (!isOpen) menu.classList.remove('is-open');
+      }, 400);
+    }
+
+    toggle.addEventListener('click', function(){
+      isOpen ? closeMenu() : openMenu();
+    });
+
+    menu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', closeMenu);
+    });
+
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeMenu();
+    });
+  })();
+
+  // ============================================================
+  // Video slideshow: seamless looping + swipe-up navigation
+  // ============================================================
+  (function(){
+    var videos = [
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v1.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v2.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v3.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v4.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v5.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v5.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v6.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v7.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v8.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v9.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v10.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v11.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v12.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v13.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v14.mp4',
+      'https://raw.githubusercontent.com/Ramashery/Dev3/refs/heads/main/video/v15.mp4'
+    ];
+
+    var layers = [document.getElementById('videoA'), document.getElementById('videoB')];
+    var heroContent = document.getElementById('heroContent');
+    var hero = document.getElementById('top');
+    var swipeHint = document.getElementById('swipeHint');
+
+    var activeLayer = 0;
+    var currentIndex = 0;
+    var isTransitioning = false;
+    var CROSSFADE = 900; // ms — must match .slide-video transition duration
+    var hintDismissed = false;
+
+    function dismissHint(){
+      if (hintDismissed) return;
+      hintDismissed = true;
+      swipeHint.classList.add('is-hidden');
+    }
+
+    // Watches the currently active layer; near the end of its own
+    // duration it starts a crossfade back to the same source at time 0,
+    // producing an invisible, looping stitch instead of a hard cut.
+    function attachLoopWatcher(el){
+      el.addEventListener('timeupdate', function(){
+        if (layers[activeLayer] !== el) return;
+        if (isTransitioning) return;
+        if (!el.duration || isNaN(el.duration) || !isFinite(el.duration)) return;
+
+        var fade = Math.min(CROSSFADE / 1000, el.duration * 0.3);
+        var remain = el.duration - el.currentTime;
+        if (remain <= fade && remain > 0){
+          crossfadeTo(videos[currentIndex]);
+        }
+      });
+    }
+    layers.forEach(attachLoopWatcher);
+
+    function crossfadeTo(src){
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      var fromLayer = activeLayer;
+      var toLayer = 1 - activeLayer;
+      var fromEl = layers[fromLayer];
+      var toEl = layers[toLayer];
+
+      toEl.pause();
+      toEl.src = src;
+      toEl.currentTime = 0;
+      var p = toEl.play();
+      if (p && p.catch) p.catch(function(){});
+
+      requestAnimationFrame(function(){
+        toEl.classList.add('is-active');
+        fromEl.classList.remove('is-active');
+      });
+
+      setTimeout(function(){
+        fromEl.pause();
+        activeLayer = toLayer;
+        isTransitioning = false;
+      }, CROSSFADE + 80);
+    }
+
+    function goTo(delta){
+      if (isTransitioning) return;
+      dismissHint();
+      currentIndex = (currentIndex + delta + videos.length) % videos.length;
+      crossfadeTo(videos[currentIndex]);
+    }
+
+    // Init first slide
+    layers[0].src = videos[0];
+    layers[0].addEventListener('loadeddata', function once(){
+      layers[0].removeEventListener('loadeddata', once);
+      heroContent.classList.add('is-visible');
+    });
+    layers[0].classList.add('is-active');
+    var initialPlay = layers[0].play();
+    if (initialPlay && initialPlay.catch) initialPlay.catch(function(){});
+
+    // ---- Touch swipe (vertical) ----
+    var startY = null;
+    var SWIPE_THRESHOLD = 50;
+
+    hero.addEventListener('touchstart', function(e){
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    hero.addEventListener('touchmove', function(e){
+      e.preventDefault();
+    }, { passive: false });
+
+    hero.addEventListener('touchend', function(e){
+      if (startY === null) return;
+      var endY = e.changedTouches[0].clientY;
+      var diff = startY - endY;
+      if (diff > SWIPE_THRESHOLD) goTo(1);
+      else if (diff < -SWIPE_THRESHOLD) goTo(-1);
+      startY = null;
+    });
+
+    // ---- Desktop fallback: wheel + arrow keys ----
+    var wheelLocked = false;
+    hero.addEventListener('wheel', function(e){
+      if (wheelLocked || Math.abs(e.deltaY) < 20) return;
+      wheelLocked = true;
+      if (e.deltaY > 0) goTo(1); else goTo(-1);
+      setTimeout(function(){ wheelLocked = false; }, 700);
+    }, { passive: true });
+
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'ArrowUp'){ goTo(-1); }
+      if (e.key === 'ArrowDown'){ goTo(1); }
+    });
+  })();
+</script>
+
+</body>
+</html>
